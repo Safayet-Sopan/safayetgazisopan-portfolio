@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safayet Gazi Sopan — CSE Student Focused on Software Engineering, Web Technologies, and AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/css/style.css" />
+</head>
+<body>
+
+  <div class="loader" id="loader">
+  <div class="loader__inner">
+      <div class="loader__track">
+        <div class="loader__bar" id="loaderBar"></div>
+      </div>
+  </div>
+  </div>
+
+<canvas class="bg-fx" id="bgFx" aria-hidden="true"></canvas>
+
+<main id="siteContent">
+
+
+  <div class="cursor">
+    <div class="cursor__dot"></div>
+
+    <div class="cursor__ring-wrapper">
+      <div class="cursor__ring"></div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <a href="#hero" class="nav__logo"><img src="./assets/sopanLogo.svg" alt="Logo"/></a>
+    <div class="nav__links">
+      <a href="#who" class="nav__link">Who</a>
+      <a href="#work" class="nav__link">Work</a>
+      <a href="#skills" class="nav__link">Skills</a>
+      <a href="#video" class="nav__link">Video</a>
+      <a href="#contact" class="nav__link">Contact</a>
+    </div>
+    <a href="./assets/safayetgazisopan-cv.pdf" target="_blank" class="nav__resume">Résumé ↗</a>
+    <button class="nav__burger" id="burger" aria-label="Menu">
+      <span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#work" class="mobile-menu__link">Work</a>
+    <a href="#who" class="mobile-menu__link">Who</a>
+    <a href="#skills" class="mobile-menu__link">Skills</a>
+    <a href="#video" class="mobile-menu__link">Video</a>
+    <a href="#contact" class="mobile-menu__link">Contact</a>
+    <a href="#" class="mobile-menu__link">Résumé ↗</a>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero-scroll-space" id="hero">
+    <div class="hero-wrapper" id="heroWrapper">
+
+      <!-- First name row — sits above image -->
+      <div class="hero__name-row hero__name-row--top">
+        <span class="hero__first hero-hover" id="heroFirst">Safayet Gazi</span>
+      </div>
+
+      <!-- Portrait frame — between the two name rows -->
+      <div class="hero__photo" id="heroPhoto">
+        <div class="hero__photo-frame">
+          <img src="./img/profileMain.png" alt="Safayet Gazi Sopan" />
+        </div>
+      </div>
+
+      <!-- Last name row — sits below image, overlaps bottom -->
+      <div class="hero__name-row hero__name-row--bottom">
+        <span class="hero__last hero-hover hero-scramble" id="heroLast">Sopan</span>
+      </div>
+
+      <!-- Subtitle + CTAs -->
+      <div class="hero__meta">
+        <p class="hero__sub">CSE Student Focused on Software Engineering, Web Technologies, and AI<br>• Dhaka, Bangladesh</p>
+        <div class="hero__ctas">
+          <a href="#work" class="hero__cta">View Work ↓</a>
+          <a href="#contact" class="hero__cta">Say Hello →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WHO / ABOUT -->
+  <section class="section" id="who">
+    <div class="section__label">WHO</div>
+    <div class="section__body">
+      <div class="who__grid">
+        <div class="who__photo animate-target" data-delay="0">
+          <img src="./img/profile.png" alt="Safayet Gazi Sopan">
+        </div>
+        <div class="who__text animate-target" data-delay="1">
+          <h2 class="who__headline">A Little About Me</h2>
+          <p>I'm a HighLevel Technical Expert who thrives in a 100% customer-facing role, providing 1:1 front-line technical support to marketing agencies and their clients. I diagnose and resolve CRM software issues, build trusted advisor relationships, and deliver a high level of customer satisfaction across email, live chat, and Zoom — consistently meeting and exceeding SLAs and KPIs.</p>
+          <p>With hands-on experience in GoHighLevel and other marketing tools like ClickFunnels, ActiveCampaign, WordPress, and Zapier — plus a working knowledge of HTML, CSS, and JavaScript — I bring effective problem-solving, impeccable attention to detail, and a self-driven passion for going the extra mile for the team and customers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="section" id="work">
+    <div class="section__label">WORK</div>
+    <div class="section__body">
+      <div class="work-header">
+        <div class="work-nav">
+
+          <button id="workPrev">
+              ←
+            </button>
+
+            <button id="workNext">
+              →
+            </button>
+
+          </div>
+      </div>
+      <div class="work-grid">
+
+        <!-- CARD 1 -->
+        <a href="https://github.com/Safayet-Sopan/ShelfWise"
+          target="_blank"
+          class="work-card">
+
+            <div class="work-card__tag">
+                Academic Project
+            </div>
+
+            <div class="work-card__image">
+                <h2>Shelf Wise</h2>
+            </div>
+
+            <div class="work-card__stats">
+
+                <div class="work-stat">
+                    <h5>Java</h4>
+                    <span>Language</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>Swing, Figma</h4>
+                    <span>GUI</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>CRUD</h4>
+                    <span>Features</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>OOP</h4>
+                    <span>Concept</span>
+                </div>
+
+            </div>
+
+            <div class="work-card__arrow">
+                →
+            </div>
+
+        </a>
+
+        <!-- CARD 2 -->
+        <a href="https://github.com/abidsejan/BookMyChef.git"
+          target="_blank"
+          class="work-card">
+
+            <div class="work-card__tag">
+                Academic Project
+            </div>
+
+            <div class="work-card__image">
+                <h2>Book My Chef</h2>
+            </div>
+
+            <div class="work-card__stats">
+
+                <div class="work-stat">
+                    <h5>C#</h4>
+                    <span>Language</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>UI</h4>
+                    <span>Design</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>Booking</h4>
+                    <span>System</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>Figma</h4>
+                    <span>Prototype</span>
+                </div>
+
+            </div>
+
+            <div class="work-card__arrow">
+                →
+            </div>
+
+        </a>
+
+        <!-- CARD 3 -->
+        <a href="#"
+          class="work-card">
+
+            <div class="work-card__tag">
+                Personal Project
+            </div>
+
+            <div class="work-card__image">
+                <h2>Personal Portfolio</h2>
+            </div>
+
+            <div class="work-card__stats">
+
+                <div class="work-stat">
+                    <h5>HTML / CSS</h5>
+                    <span>Markup & Styling</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>JavaScript</h5>
+                    <span>Interactivity</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>Tailwind CSS</h5>
+                    <span>Utility CSS</span>
+                </div>
+
+                <div class="work-stat">
+                    <h5>Responsive Design</h5>
+                    <span>Mobile Friendly</span>
+                </div>
+
+            </div>
+
+            <div class="work-card__arrow">
+                →
+            </div>
+
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="section" id="skills">
+    <div class="section__label">SKILLS</div>
+    <div class="section__body">
+      <div class="skills__grid">
+        <div class="skills__col animate-target" data-delay="0">
+          <h4 class="skills__colhead">Languages &amp; Frameworks</h4>
+          <ul class="skills__list">
+            <li class="skill-item" data-title="HTML / CSS" data-desc="Used for structuring and styling web pages, creating responsive layouts, and implementing visual design.">HTML / CSS</li>
+            <li class="skill-item" data-title="JavaScript / TypeScript" data-desc="Used for modern web applications, interactive interfaces, and full-stack development.">JavaScript / TypeScript</li>
+            <li class="skill-item" data-title="C#" data-desc="Used for systems programming, performance-critical applications, and enterprise software development.">C#</li>
+            <li class="skill-item" data-title="Python" data-desc="Used for backend development, automation, scripting, APIs, and data processing.">Python</li>
+            <!-- <li class="skill-item" data-title="Next.js" data-desc="React framework for server‑side rendering, static site generation, and routing.">Next.js</li>
+            <li class="skill-item" data-title="Tailwind CSS" data-desc="Utility‑first CSS framework for rapid UI development and responsive design.">Tailwind CSS</li> -->
+            <li class="skill-item" data-title="REST APIs" data-desc="Connect CRM platforms, marketing tools, and business applications through API integrations and automated workflows.">REST APIs</li>
+            <li class="skill-item" data-title="JSON" data-desc="Work with structured data formats used in APIs, CRM systems, automation platforms, and third-party integrations.">JSON</li>
+            <li class="skill-item" data-title="SQL" data-desc="Used for relational database queries, data manipulation, and schema design.">SQL</li>
+          </ul>
+        </div>
+        <div class="skills__col animate-target" data-delay="1">
+          <h4 class="skills__colhead">Tools &amp; Concepts</h4>
+          <ul class="skills__list">
+            <!-- <li class="skill-item" data-title="Git / GitHub" data-desc="Version control and collaboration platform for code hosting, review, and project management.">Git / GitHub</li> -->
+            <!-- <li class="skill-item" data-title="PostgreSQL / MongoDB" data-desc="Relational and document databases for storing structured and flexible data.">PostgreSQL / MongoDB</li>
+            <li class="skill-item" data-title="Docker" data-desc="Container platform for packaging, deploying, and scaling applications.">Docker</li> -->
+            <!-- <li class="skill-item" data-title="Claude / ChatGPT" data-desc="Large language model assistants for brainstorming, coding help, and AI‑augmented workflows.">Claude / ChatGPT</li>
+            <li class="skill-item" data-title="Google / Microsoft Workspace" data-desc="Productivity suites for collaboration, document creation, and cloud services.">Google / Microsoft Workspace</li> -->
+            <!-- <li class="skill-item" data-title="Adobe Creative Suite" data-desc="Design and media tools for graphics, video, and UI mockups.">Adobe Creative Suite</li> -->
+            <!-- <li class="skill-item" data-title="N8N" data-desc="Workflow automation platform for connecting APIs and services.">N8N</li> -->
+            <!-- <li class="skill-item" data-title="Bash" data-desc="Unix shell scripting for automation, command line tasks, and system administration.">Bash</li> -->
+            <li class="skill-item" data-title="GoHighLevel" data-desc="Configure CRM systems, sales pipelines, marketing automation, workflows, funnels, calendars, and client communication processes.">GoHighLevel</li>
+            <li class="skill-item" data-title="N8N Automation" data-desc="Build workflow automations connecting CRMs, APIs, databases, email platforms, forms, and third-party business tools.">N8N Automation</li>
+            <li class="skill-item" data-title="Zapier" data-desc="Create no-code automations that streamline lead management, customer communication, and operational workflows.">Zapier</li>
+            <li class="skill-item" data-title="CRM Systems" data-desc="Organize customer data, sales pipelines, lead tracking, and business processes to improve operational efficiency.">CRM Systems</li>
+            <li class="skill-item" data-title="Claude / ChatGPT" data-desc="Leverage AI tools for troubleshooting, documentation, workflow planning, customer support, and productivity enhancement.">Claude / ChatGPT</li>
+            <li class="skill-item" data-title="Google Workspace" data-desc="Collaborate using Gmail, Calendar, Docs, Sheets, and Drive for communication, documentation, and team productivity.">Google Workspace</li>
+            <li class="skill-item" data-title="Git / GitHub" data-desc="Track code changes, manage repositories, collaborate on projects, and maintain version-controlled workflows.">Git / GitHub</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEYOND CODE -->
+  <section class="section" id="beyond">
+    <div class="section__label">BEYOND</div>
+    <div class="section__body">
+      <div class="beyond__grid">
+        <div class="beyond__item animate-target" data-delay="0">
+          <h4 class="beyond__head">I'm a Vocalist</h4>
+          <p>Music is a big part of who I am. I cover songs from bands I love and have performed at many live shows as a vocalist — there's nothing quite like the energy of a crowd and the rush of singing on stage.</p>
+        </div>
+        <div class="beyond__item animate-target" data-delay="1">
+          <h4 class="beyond__head">And a Guitarist</h4>
+          <p>When I'm not singing, I'm strumming. Playing guitar lets me explore songs from a different angle, write riffs, and bring more depth to the music I perform — whether jamming alone or on stage with others.</p>
+        </div>
+        <div class="beyond__item animate-target" data-delay="2">
+          <div class="beyond__photo">
+              <img src="./img/beyond-photo.jpg" alt="Safayet Gazi Sopan">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <section class="section" id="video">
+    <div class="section__label">VIDEO</div>
+    <div class="section__body">
+      <div class="video__intro animate-target" data-delay="0">
+        <h2 class="video__headline">A Quick Introduction</h2>
+        <p>Here's a short Loom walkthrough where I introduce myself, talk through my experience, and share how I approach technical support and the work I do.</p>
+      </div>
+      <div class="video__embed animate-target" data-delay="1">
+        <div style="position: relative; padding-bottom: 56.21436716077537%; height: 0;"><iframe src="https://www.loom.com/embed/230f103f05954c92a226450114f03ce6" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="section" id="experience">
+    <div class="section__label">EXPERIENCE</div>
+    <div class="section__body">
+      <div class="experience">
+
+        <div class="exp-item animate-target" data-delay="0">
+          <div class="exp-item__meta">
+            <span class="exp-item__date">2024 — 2025</span>
+            <span class="exp-item__company">Trends Bird Limited</span>
+          </div>
+          <div class="exp-item__body">
+            <h3 class="exp-item__role">GoHighLevel Technical Support & Automation Specialist</h3>
+            <p class="exp-item__summary">Provided technical support and consultation to business owners and agency clients, helping troubleshoot CRM, automation, and workflow-related challenges.</p>
+            <ul class="exp-item__points">
+              <li>Manage CRM systems, pipelines, contacts, calendars, and marketing workflows within GoHighLevel to support agency operations and client success.</li>
+
+              <li>Build and maintain automated workflows using N8N, GoHighLevel, APIs, and third-party integrations to improve efficiency and reduce manual processes.</li>
+
+              <li>Diagnose and resolve technical issues related to CRM configurations, automations, funnels, forms, calendars, and user accounts.</li>
+
+              <li>Provide technical support and client assistance through email, chat, and virtual meetings while ensuring timely issue resolution and customer satisfaction.</li>
+
+              <li>Build trusted advisor relationships with clients by identifying business needs and recommending effective CRM, automation, and workflow solutions.</li>
+
+              <li>Document processes, troubleshooting steps, and technical solutions to improve team knowledge sharing and operational efficiency.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exp-item animate-target" data-delay="1">
+          <div class="exp-item__meta">
+            <span class="exp-item__date">2023 — 2024</span>
+            <span class="exp-item__company">Freelance</span>
+          </div>
+          <div class="exp-item__body">
+            <h3 class="exp-item__role">CRM & Automation Specialist</h3>
+            <p class="exp-item__summary">Supported small businesses and agencies by implementing CRM systems, automation workflows, marketing funnels, and technical solutions to improve operations and customer engagement.</p>
+            <ul class="exp-item__points">
+                <li>Configured and managed GoHighLevel CRM systems, pipelines, calendars, workflows, forms, and automation processes for client projects.</li>
+
+                <li>Built and maintained automated workflows using N8N, Zapier, APIs, and third-party integrations to streamline lead management and business operations.</li>
+
+                <li>Diagnosed and resolved technical issues related to CRM configurations, automations, funnels, user accounts, and marketing systems.</li>
+
+                <li>Provided client support through meetings, email communication, and documentation while gathering requirements and delivering tailored solutions.</li>
+
+                <li>Created and optimized landing pages, websites, and business systems using HTML, CSS, JavaScript, WordPress, and modern web technologies.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section section--contact" id="contact">
+    <div class="section__label">CONTACT</div>
+    <div class="section__body">
+      <h2 class="contact__heading" id="contactHeading">Say Hello.</h2>
+      <div class="contact__row">
+        <a
+          class="contact__email"
+          href="javascript:void(0)"
+          id="emailTrigger"
+          >
+          safayetgazisopan@gmail.com
+        </a>
+        <!-- Email modal -->
+        <div id="contactModal" class="contact-modal" aria-hidden="true">
+          <div class="contact-modal__overlay"></div>
+          <div class="contact-modal__content" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
+            <button class="contact-modal__close" id="contactModalClose" aria-label="Close modal">✕</button>
+            <h2 id="contactModalTitle" class="contact-modal__title">Send a Message</h2>
+            <form id="contactForm" class="contact-modal__form">
+              <label for="contactSubject" class="contact-modal__label">Subject</label>
+              <input type="text" id="contactSubject" name="subject" class="contact-modal__input" placeholder="Project Inquiry" required />
+              <label for="contactMessage" class="contact-modal__label">Message</label>
+              <textarea id="contactMessage" name="message" class="contact-modal__textarea" placeholder="Tell me about your project..." rows="5" required></textarea>
+              <button type="submit" class="contact-modal__send">Send</button>
+            </form>
+          </div>
+        </div>
+        <div class="contact__socials">
+          <a href="https://www.linkedin.com/in/safayet-gazi-sopan/?skipRedirect=true" target="_blank" class="contact__social">LinkedIn ↗</a>
+          <a href="https://github.com/Safayet-Sopan" target="_blank" class="contact__social">GitHub ↗</a>
+        </div>
+      </div>
+      <p class="contact__copy">&copy; 2026 All Rights Reserved by Safayet Gazi Sopan.</p>
+    </div>
+  </section>
+
+  <div class="skill-tooltip">
+    <h5></h4>
+    <p></p>
+  </div>
+
+  </main>
+
+<script src="./src/js/script.js"></script>
+</body>
+</html>

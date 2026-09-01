@@ -799,7 +799,7 @@ button {
 }
 
 .beyond__photo {
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   border: 1.5px dashed rgba(139, 48, 34, 0.35);
   display: flex;
   align-items: center;

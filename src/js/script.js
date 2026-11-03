@@ -76,7 +76,7 @@ document.addEventListener('site:ready', () => {
    ============================================================ */
 (function initNav() {
   const nav = document.getElementById('nav');
-  const links = document.querySelectorAll('.nav__link');
+  const links = document.querySelectorAll('.nav__link, .mobile-menu__link');
 
   const footer = document.getElementById('contact');
 
@@ -117,19 +117,27 @@ document.addEventListener('site:ready', () => {
   if (!burger || !menu) return;
 
   let isOpen = false;
+  let settleTimer = null;
 
   function setOpen(open) {
     isOpen = open;
     menu.classList.toggle('open', isOpen);
     nav.classList.toggle('menu-open', isOpen);
     burger.setAttribute('aria-expanded', String(isOpen));
+    menu.setAttribute('aria-hidden', String(!isOpen));
+    menu.inert = !isOpen;
     document.body.style.overflow = isOpen ? 'hidden' : '';
+
+    // the staggered entrance takes ~1s; after that, hovers shouldn't wait on it
+    clearTimeout(settleTimer);
+    menu.classList.remove('is-settled');
+    if (isOpen) settleTimer = setTimeout(() => menu.classList.add('is-settled'), 1100);
   }
 
   burger.addEventListener('click', () => setOpen(!isOpen));
 
   // close when a link is clicked
-  menu.querySelectorAll('.mobile-menu__link').forEach(link => {
+  menu.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => setOpen(false));
   });
 
@@ -305,7 +313,7 @@ document.addEventListener('site:ready', () => {
   document.addEventListener('mouseover', (e) => {
     cursor.classList.toggle('hover', !!e.target.closest(HOVER_TARGETS));
     // (the "Send a message" button turns cream on hover, so keep it red there)
-    cursor.classList.toggle('on-dark', !!e.target.closest('.footer') && !e.target.closest('.footer__cta'));
+    cursor.classList.toggle('on-dark', !!e.target.closest('.footer, .mobile-menu') && !e.target.closest('.footer__cta'));
   });
 })();
 

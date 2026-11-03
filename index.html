@@ -566,15 +566,56 @@
   <div id="contactModal" class="contact-modal" aria-hidden="true">
     <div class="contact-modal__overlay"></div>
     <div class="contact-modal__content" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
-      <button class="contact-modal__close" id="contactModalClose" aria-label="Close modal"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-      <h2 id="contactModalTitle" class="contact-modal__title">Send a Message</h2>
-      <form id="contactForm" class="contact-modal__form">
-        <label for="contactSubject" class="contact-modal__label">Subject</label>
-        <input type="text" id="contactSubject" name="subject" class="contact-modal__input" placeholder="Project Inquiry" required />
-        <label for="contactMessage" class="contact-modal__label">Message</label>
-        <textarea id="contactMessage" name="message" class="contact-modal__textarea" placeholder="Tell me about your project..." rows="5" required></textarea>
-        <button type="submit" class="contact-modal__send">Send</button>
-      </form>
+      <button class="contact-modal__close" id="contactModalClose" type="button" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+
+      <div class="contact-modal__view contact-modal__view--form">
+        <header class="contact-modal__head">
+          <span class="contact-modal__pill"><span class="contact-modal__pulse" aria-hidden="true"></span>Open to work &amp; collabs</span>
+          <h2 id="contactModalTitle" class="contact-modal__title">Let&rsquo;s talk.</h2>
+          <p class="contact-modal__lede">Tell me a little about what you have in mind. It lands straight in my inbox, and I usually reply within a day or two.</p>
+        </header>
+
+        <form id="contactForm" class="contact-modal__form" novalidate>
+          <div class="contact-modal__row">
+            <div class="contact-modal__field">
+              <label for="contactName" class="contact-modal__label">Name</label>
+              <input type="text" id="contactName" name="name" class="contact-modal__input" placeholder="Your name" autocomplete="name" required />
+            </div>
+            <div class="contact-modal__field">
+              <label for="contactEmail" class="contact-modal__label">Email</label>
+              <input type="email" id="contactEmail" name="email" class="contact-modal__input" placeholder="you@example.com" autocomplete="email" required />
+            </div>
+          </div>
+          <div class="contact-modal__field">
+            <label for="contactSubject" class="contact-modal__label">Subject</label>
+            <input type="text" id="contactSubject" name="subject" class="contact-modal__input" placeholder="Project inquiry" required />
+          </div>
+          <div class="contact-modal__field">
+            <label for="contactMessage" class="contact-modal__label">Message</label>
+            <textarea id="contactMessage" name="message" class="contact-modal__input contact-modal__textarea" placeholder="Tell me about your project&hellip;" rows="4" required></textarea>
+          </div>
+          <!-- spam trap: real people never see or fill this -->
+          <input type="checkbox" name="botcheck" class="contact-modal__trap" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <p class="contact-modal__error" id="contactError" role="alert" hidden></p>
+
+          <div class="contact-modal__actions">
+            <button type="submit" class="contact-modal__send" id="contactSend">
+              <span class="contact-modal__send-label">Send message</span>
+              <svg class="icon contact-modal__send-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span class="contact-modal__spinner" aria-hidden="true"></span>
+            </button>
+            <a href="mailto:safayetgazisopan@gmail.com" class="contact-modal__alt">or email me directly</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="contact-modal__view contact-modal__view--done" aria-live="polite">
+        <span class="contact-modal__check" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <h2 class="contact-modal__title">Message sent.</h2>
+        <p class="contact-modal__lede">Thanks for reaching out. I&rsquo;ll get back to you at <strong id="contactDoneEmail">your email</strong> soon.</p>
+        <button type="button" class="contact-modal__send contact-modal__send--ghost" id="contactDoneClose">Back to the site</button>
+      </div>
     </div>
   </div>
 

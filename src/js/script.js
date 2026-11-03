@@ -154,6 +154,13 @@ document.addEventListener('site:ready', () => {
 /* ============================================================
    5. CONTACT MODAL
    ============================================================ */
+// Messages from the contact form are emailed to you by Web3Forms (free, no
+// backend needed). Get a key at https://web3forms.com by entering your email,
+// then paste it here. The key is safe to keep in public code: it can only
+// send mail to the address it was created for.
+const WEB3FORMS_KEY = 'aed9ed4a-122e-41ab-8dcf-dcdf31c8534b';
+const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
+
 (function initContactModal() {
   const trigger = document.getElementById('emailTrigger');
   const modal = document.getElementById('contactModal');
@@ -161,14 +168,19 @@ document.addEventListener('site:ready', () => {
   const form = document.getElementById('contactForm');
   if (!trigger || !modal || !closeBtn || !form) return;
   const overlay = modal.querySelector('.contact-modal__overlay');
+  const sendBtn = document.getElementById('contactSend');
+  const errorEl = document.getElementById('contactError');
+  const doneClose = document.getElementById('contactDoneClose');
+  const doneEmail = document.getElementById('contactDoneEmail');
 
-  const focusableSelectors = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+  const focusableSelectors = 'a[href], button:not([disabled]), textarea, input:not([tabindex="-1"]), select, [tabindex]:not([tabindex="-1"])';
 
   const openModal = (e) => {
     e.preventDefault();
+    modal.classList.remove('is-sent');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    const firstInput = modal.querySelector('input, textarea');
+    const firstInput = modal.querySelector('.contact-modal__input');
     // don't pop the keyboard open on phones
     if (firstInput && finePointer.matches) firstInput.focus();
   };
@@ -182,6 +194,7 @@ document.addEventListener('site:ready', () => {
   trigger.addEventListener('click', openModal);
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
+  doneClose.addEventListener('click', closeModal);
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
@@ -208,23 +221,77 @@ document.addEventListener('site:ready', () => {
     }
   });
 
-  form.addEventListener('submit', (e) => {
+  const showError = (html) => {
+    errorEl.innerHTML = html;
+    errorEl.hidden = !html;
+  };
+
+  // clear a field's error as soon as the visitor fixes it
+  form.addEventListener('input', (e) => {
+    if (e.target.classList.contains('is-invalid') && e.target.checkValidity()) {
+      e.target.classList.remove('is-invalid');
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const subject = encodeURIComponent(
-      document.getElementById('contactSubject').value.trim()
-    );
+    const fields = Array.from(form.querySelectorAll('.contact-modal__input'));
+    const invalid = fields.filter(f => !f.value.trim() || !f.checkValidity());
+    fields.forEach(f => f.classList.toggle('is-invalid', invalid.includes(f)));
+    if (invalid.length) {
+      showError(invalid.some(f => f.type === 'email' && f.value.trim())
+        ? 'That email address doesn&rsquo;t look quite right.'
+        : 'Please fill in every field so I can get back to you.');
+      invalid[0].focus();
+      return;
+    }
+    showError('');
 
-    const message = encodeURIComponent(
-      document.getElementById('contactMessage').value.trim()
-    );
+    const data = Object.fromEntries(new FormData(form));
+    const name = data.name.trim();
+    const email = data.email.trim();
+    const subject = data.subject.trim();
+    const message = data.message.trim();
 
-    const gmailUrl =
-      `https://mail.google.com/mail/?view=cm&fs=1&to=safayetgazisopan@gmail.com&su=${subject}&body=${message}`;
+    // no key yet: fall back to opening a pre-filled Gmail draft
+    if (!WEB3FORMS_KEY) {
+      const body = `${message}\n\n${name} <${email}>`;
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT_EMAIL}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+      closeModal();
+      return;
+    }
 
-    window.open(gmailUrl, '_blank');
+    sendBtn.classList.add('is-loading');
+    sendBtn.setAttribute('aria-busy', 'true');
 
-    closeModal();
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `Portfolio: ${subject}`,
+          from_name: name,
+          name,
+          email,            // Web3Forms sets this as Reply-To, so you can just hit reply
+          message,
+          botcheck: data.botcheck ? true : '',
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) throw new Error(json.message || res.statusText);
+
+      doneEmail.textContent = email;
+      form.reset();
+      modal.classList.add('is-sent');
+      doneClose.focus({ preventScroll: true });
+    } catch (err) {
+      showError(`Something went wrong sending that. Please try again, or email me at <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.`);
+    } finally {
+      sendBtn.classList.remove('is-loading');
+      sendBtn.removeAttribute('aria-busy');
+    }
   });
 })();
 

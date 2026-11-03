@@ -78,8 +78,16 @@ document.addEventListener('site:ready', () => {
   const nav = document.getElementById('nav');
   const links = document.querySelectorAll('.nav__link');
 
-  // sticky background on scroll
-  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 60);
+  const footer = document.getElementById('contact');
+
+  // sticky background on scroll; slide the nav away once the contact footer
+  // reaches the top of the screen (it has its own menu, and the light bar
+  // would otherwise sit on top of the red block)
+  const onScroll = () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+    const overFooter = footer && footer.getBoundingClientRect().top <= nav.offsetHeight;
+    nav.classList.toggle('nav--hidden', !!overFooter && !nav.classList.contains('menu-open'));
+  };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 

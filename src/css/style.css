@@ -25,6 +25,10 @@
   --label-w: 12px;    /* vertical section label column */
   --col-gap: 48px;    /* label → content gap */
   --nav-h: 64px;
+
+  /* Lucide arrow icons, used as CSS masks so they take the text colour */
+  --icon-arrow-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+  --icon-arrow-up-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 7h10v10'/%3E%3Cpath d='M7 17 17 7'/%3E%3C/svg%3E");
 }
 
 html {
@@ -154,6 +158,35 @@ html {
 }
 
 /* ============================================================
+   ICONS — inline Lucide SVGs, sized to the surrounding text
+   ============================================================ */
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  vertical-align: -0.14em;
+}
+
+.work-nav button .icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.work-card__arrow .icon {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.contact-modal__close .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================================
    BACKGROUND FX — kinetic dot grid (mouse + touch)
    ============================================================ */
 .bg-fx {
@@ -234,8 +267,18 @@ button {
   align-items: center;
   padding: 0 var(--pad-x);
   height: var(--nav-h);
-  transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+  transition:
+    background 0.4s ease,
+    backdrop-filter 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.5s var(--ease-out);
   border-bottom: 1px solid transparent;
+}
+
+/* hidden while the contact footer is on screen */
+.nav.nav--hidden {
+  transform: translateY(-100%);
+  pointer-events: none;
 }
 
 .nav.scrolled,
@@ -990,10 +1033,15 @@ button {
 }
 
 .exp-item__points li::before {
-  content: "→";
+  content: '';
   position: absolute;
   left: 0;
-  color: var(--accent);
+  top: 0.32em;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  -webkit-mask: var(--icon-arrow-right) center / contain no-repeat;
+  mask: var(--icon-arrow-right) center / contain no-repeat;
 }
 
 /* ============================================================
@@ -1067,6 +1115,7 @@ button {
 }
 
 .footer__cta-arrow {
+  display: inline-flex;
   transition: transform 0.35s var(--ease-out);
 }
 
@@ -1125,29 +1174,36 @@ a.footer__link {
 }
 
 a.footer__link::after {
+  content: '';
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 100%;
+  width: 0.7em;
+  height: 0.7em;
+  margin-top: -0.32em;
   margin-left: 0.3em;
+  background: currentColor;
+  -webkit-mask: var(--footer-arrow) center / contain no-repeat;
+  mask: var(--footer-arrow) center / contain no-repeat;
   opacity: 0;
   transform: translateX(-0.4em);
   transition: opacity 0.25s ease, transform 0.4s var(--ease-out);
   pointer-events: none;
 }
 
-a.footer__link[href^="#"]::after {
-  content: '→';
+a.footer__link[href^="#"] {
+  --footer-arrow: var(--icon-arrow-right);
 }
 
-a.footer__link:not([href^="#"])::after {
-  content: '↗';
+a.footer__link:not([href^="#"]) {
+  --footer-arrow: var(--icon-arrow-up-right);
 }
 
 /* right-aligned column: arrow sits on the left so it never runs off the edge */
 .footer__col--end a.footer__link::after {
   left: auto;
   right: 100%;
-  margin: 0 0.3em 0 0;
+  margin: -0.32em 0.3em 0 0;
   transform: translateX(0.4em);
 }
 
@@ -1156,7 +1212,7 @@ a.footer__link:not([href^="#"])::after {
   .footer__col--end a.footer__link::after {
     left: 100%;
     right: auto;
-    margin: 0 0 0 0.3em;
+    margin: -0.32em 0 0 0.3em;
     transform: translateX(-0.4em);
   }
 }
@@ -1241,6 +1297,9 @@ a.footer__link:not([href^="#"])::after {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
 /* ============================================================

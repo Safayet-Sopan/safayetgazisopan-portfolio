@@ -136,6 +136,6 @@ const SHOWS = [
     bento.appendChild(tile);
   });
 
-  // the tiles rise in as the loading curtain lifts
+  // the tiles rise in as the page opens
   document.addEventListener('site:ready', () => bento.classList.add('is-in'));
 })();

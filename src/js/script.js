@@ -440,10 +440,8 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
       x += (targetX - x) * GLIDE;
       y += (targetY - y) * GLIDE;
 
-      card.style.setProperty('--card-x', `${x * MAX_SHIFT}px`);
-      card.style.setProperty('--card-y', `${y * MAX_SHIFT}px`);
-      card.style.setProperty('--card-rx', `${-y * MAX_TILT}deg`);
-      card.style.setProperty('--card-ry', `${x * MAX_TILT}deg`);
+      card.style.transform = `translate(${x * MAX_SHIFT}px, ${y * MAX_SHIFT}px) ` +
+        `rotateX(${-y * MAX_TILT}deg) rotateY(${x * MAX_TILT}deg)`;
 
       const settled = Math.abs(targetX - x) < 0.002 && Math.abs(targetY - y) < 0.002;
       frame = settled ? null : requestAnimationFrame(glide);
@@ -470,48 +468,86 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 
 /* ============================================================
    7d. BEYOND ENTRANCE — with a mouse, the whole section is the
-       Explore button; on touch, the photo is. Clicking opens the
-       button out until it fills the screen, and the Beyond page's
-       own loader carries on from it in the same colour.
+       Explore button; on touch, the photo is. Clicking grows the
+       button into a circle that fills the screen, deepening to the
+       collage's colour, and the collage appears behind it. The page
+       is fetched ahead of time so nothing has to load on the way.
    ============================================================ */
 (function initBeyondEntrance() {
   const section = document.getElementById('beyond');
   const link = section && section.querySelector('.beyond__portal');
   if (!link) return;
 
-  const CURTAIN_MS = 900;
-  let curtain = null;
+  const GROW_MS = 900;
+  const START_SIZE = 40;   // px: starts inside the button, so it seems to swell from it
+  const AHEAD = [
+    './beyond.html',
+    './src/js/beyond.js',
+    './src/js/beyond-art.js',
+    './img/beyond-saptashur.webp',
+    './img/beyond-boishakh.webp',
+  ];
+
+  new IntersectionObserver((entries, watcher) => {
+    if (!entries[0].isIntersecting) return;
+    watcher.disconnect();
+    AHEAD.forEach((href) => {
+      const hint = document.createElement('link');
+      hint.rel = 'prefetch';
+      hint.href = href;
+      document.head.appendChild(hint);
+    });
+  }, { rootMargin: '600px' }).observe(section);
+
+  // where the button actually is: the cursor trails the mouse a little
+  function buttonCentre(e) {
+    const button = finePointer.matches
+      ? document.querySelector('.cursor')
+      : link.querySelector('.beyond__explore');
+    const box = (e.detail === 0 || !button ? link : button).getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+  }
+
+  let circle = null;
 
   section.addEventListener('click', (e) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // new tab etc.
     if (!finePointer.matches && !e.target.closest('.beyond__portal')) return;
     if (!window.getSelection().isCollapsed) return;                 // selecting text
     e.preventDefault();
-    if (curtain) return;
+    if (circle) return;
 
     if (prefersReducedMotion) {
       window.location.href = link.href;
       return;
     }
 
-    curtain = document.createElement('div');
-    curtain.className = 'curtain';
-    curtain.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(curtain);
+    // drawn at full size and scaled, so the graphics card does all the work
+    const { x, y } = buttonCentre(e);
+    const size = 2 * Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    ) + 8;
 
-    // open from the pointer, or from the photo when Enter pressed the link
-    let x = e.clientX;
-    let y = e.clientY;
-    if (e.detail === 0) {
-      const box = link.getBoundingClientRect();
-      x = box.left + box.width / 2;
-      y = box.top + box.height / 2;
-    }
-    const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    circle = document.createElement('div');
+    circle.className = 'grow-circle';
+    circle.setAttribute('aria-hidden', 'true');
+    Object.assign(circle.style, {
+      left: `${x - size / 2}px`,
+      top: `${y - size / 2}px`,
+      width: `${size}px`,
+      height: `${size}px`,
+    });
+    const depth = document.createElement('div');
+    depth.className = 'grow-circle__depth';
+    circle.appendChild(depth);
+    document.body.appendChild(circle);
 
-    curtain.animate(
-      [{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${reach}px at ${x}px ${y}px)` }],
-      { duration: CURTAIN_MS, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'forwards' }
+    const timing = { duration: GROW_MS, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' };
+    depth.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+    circle.animate(
+      [{ transform: `scale(${START_SIZE / size})` }, { transform: 'scale(1)' }],
+      timing
     ).finished.then(() => {
       window.location.href = link.href;
     });
@@ -519,9 +555,9 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 
   // coming back with the browser's back button restores this page as it was
   window.addEventListener('pageshow', (e) => {
-    if (!e.persisted || !curtain) return;
-    curtain.remove();
-    curtain = null;
+    if (!e.persisted || !circle) return;
+    circle.remove();
+    circle = null;
   });
 })();
 
@@ -543,49 +579,65 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   const SPACING = 32;       // distance between dots
   const MIN_SIZE = 0.6;     // dot radius when exhaled
   const MAX_SIZE = 1.8;     // dot radius when inhaled
-  const FRAME_MS = 33;      // the waves are slow, so 30 frames a second is plenty
+  const LEVELS = 8;         // dots are grouped into this many shades, one fill each
+  const FRAME_MS = 50;      // the waves are slow, so 20 frames a second is plenty
 
+  let xs = [], ys = [];
+  let xWave = [], yWave = [];   // the parts of the third wave that never change
   let w = 0, h = 0;
   let lastFrame = 0;
 
+  // one pixel per CSS pixel even on sharp screens: at this faintness the dots
+  // look the same, and the page has a quarter of the canvas to move around
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = window.innerWidth;
     h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvas.width = w;
+    canvas.height = h;
+    xs = [];
+    ys = [];
+    for (let x = SPACING / 2; x < w; x += SPACING) xs.push(x);
+    for (let y = SPACING / 2; y < h; y += SPACING) ys.push(y);
+    yWave = ys.map((y) => [Math.sin(y * 0.009), Math.cos(y * 0.009)]);
+    xWave = xs.map((x) => x * 0.009);
   }
   resize();
   window.addEventListener('resize', resize);
-
-  // slow waves drifting across the grid: 0 = exhaled, 1 = inhaled
-  function breathAt(x, y, now) {
-    const wave = (
-      Math.sin(x * 0.014 + now * 0.0008) +
-      Math.sin(y * 0.018 - now * 0.0006) +
-      Math.sin((x + y) * 0.009 + now * 0.0004)
-    ) / 3;
-    // three waves rarely peak together, so stretch them to use the full range
-    return Math.max(0, Math.min(1, (wave * 1.7 + 1) / 2));
-  }
 
   function frame(now) {
     requestAnimationFrame(frame);
     if (now - lastFrame < FRAME_MS) return;
     lastFrame = now;
 
-    ctx.clearRect(0, 0, w, h);
+    // slow waves drifting across the grid, worked out per column and per row
+    const across = xs.map((x) => Math.sin(x * 0.014 + now * 0.0008));
+    const down = ys.map((y) => Math.sin(y * 0.018 - now * 0.0006));
+    const diagonal = xWave.map((a) => [
+      Math.sin(a + now * 0.0004),
+      Math.cos(a + now * 0.0004),
+    ]);
 
-    for (let x = SPACING / 2; x < w; x += SPACING) {
-      for (let y = SPACING / 2; y < h; y += SPACING) {
-        const breath = breathAt(x, y, now);
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(${DOT}, ${MAX_ALPHA * breath})`;
-        ctx.arc(x, y, MIN_SIZE + (MAX_SIZE - MIN_SIZE) * breath, 0, Math.PI * 2);
-        ctx.fill();
+    const shades = Array.from({ length: LEVELS }, () => new Path2D());
+
+    for (let c = 0; c < xs.length; c++) {
+      for (let r = 0; r < ys.length; r++) {
+        // sin(a + b) from its halves
+        const third = diagonal[c][0] * yWave[r][1] + diagonal[c][1] * yWave[r][0];
+        const wave = (across[c] + down[r] + third) / 3;
+        // three waves rarely peak together, so stretch them to use the full range
+        const breath = Math.max(0, Math.min(1, (wave * 1.7 + 1) / 2));   // 0 = exhaled, 1 = inhaled
+        const level = Math.min(LEVELS - 1, Math.floor(breath * LEVELS));
+        const size = MIN_SIZE + (MAX_SIZE - MIN_SIZE) * (level + 0.5) / LEVELS;
+        shades[level].moveTo(xs[c] + size, ys[r]);
+        shades[level].arc(xs[c], ys[r], size, 0, Math.PI * 2);
       }
     }
+
+    ctx.clearRect(0, 0, w, h);
+    shades.forEach((path, level) => {
+      ctx.fillStyle = `rgba(${DOT}, ${MAX_ALPHA * (level + 0.5) / LEVELS})`;
+      ctx.fill(path);
+    });
   }
   requestAnimationFrame(frame);
 })();

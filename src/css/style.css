@@ -345,6 +345,7 @@ button {
   color: var(--ink-muted);
   transition: color 0.2s, border-color 0.2s;
   border: 1px solid var(--rule);
+  border-radius: 999px;
   padding: 6px 14px;
   white-space: nowrap;
 }
@@ -1242,6 +1243,19 @@ button {
   font-weight: 700;
   line-height: 1.3;
   color: var(--ink);
+}
+
+.exp-item__school {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exp-item__logo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .exp-item__role {

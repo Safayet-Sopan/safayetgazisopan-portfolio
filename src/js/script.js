@@ -415,6 +415,57 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
+   7c. SCHOOL LOGOS — lean gently towards the pointer. The position
+       glides towards its target each frame, so it never snaps.
+   ============================================================ */
+(function initLogoCards() {
+  if (prefersReducedMotion) return;
+
+  const MAX_TILT = 6;      // degrees at the logo's edge
+  const MAX_SHIFT = 3;     // px at the logo's edge
+  const GLIDE = 0.07;      // share of the remaining distance covered per frame
+
+  document.querySelectorAll('.exp-item__logo-link').forEach((link) => {
+    const card = link.querySelector('.exp-item__logo-card');
+    if (!card) return;
+
+    let targetX = 0, targetY = 0;   // -1 to 1 across the logo
+    let x = 0, y = 0;
+    let frame = null;
+
+    function glide() {
+      x += (targetX - x) * GLIDE;
+      y += (targetY - y) * GLIDE;
+
+      card.style.setProperty('--card-x', `${x * MAX_SHIFT}px`);
+      card.style.setProperty('--card-y', `${y * MAX_SHIFT}px`);
+      card.style.setProperty('--card-rx', `${-y * MAX_TILT}deg`);
+      card.style.setProperty('--card-ry', `${x * MAX_TILT}deg`);
+
+      const settled = Math.abs(targetX - x) < 0.002 && Math.abs(targetY - y) < 0.002;
+      frame = settled ? null : requestAnimationFrame(glide);
+    }
+
+    function aimAt(newX, newY) {
+      targetX = newX;
+      targetY = newY;
+      if (!frame) frame = requestAnimationFrame(glide);
+    }
+
+    link.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const box = link.getBoundingClientRect();
+      aimAt(
+        (e.clientX - box.left) / box.width * 2 - 1,
+        (e.clientY - box.top) / box.height * 2 - 1
+      );
+    });
+
+    link.addEventListener('pointerleave', () => aimAt(0, 0));
+  });
+})();
+
+/* ============================================================
    8. BACKGROUND FX — dot grid that only exists around the mouse
       (or your finger on touch screens) and slowly breathes there
    ============================================================ */

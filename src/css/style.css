@@ -1209,7 +1209,7 @@ button {
 
 .exp-item {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: var(--exp-col, 240px) minmax(0, 1fr);
   gap: 48px;
   padding: 36px 0;
   border-top: 1px solid var(--rule);
@@ -1248,14 +1248,57 @@ button {
 .exp-item__school {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+}
+
+/* the school column is wider than the jobs one, so names get room to breathe */
+#education {
+  --exp-col: 400px;
+  --logo-card: 56px;
+}
+
+/* the link stays still and catches the pointer; the card inside it moves */
+.exp-item__logo-link {
+  flex: none;
+  display: block;
+  width: var(--logo-card);
+  height: var(--logo-card);
+  border-radius: 14px;
+  perspective: 320px;
+}
+
+.exp-item__logo-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.exp-item__logo-card {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translate(var(--card-x, 0), var(--card-y, 0))
+    rotateX(var(--card-rx, 0deg)) rotateY(var(--card-ry, 0deg));
+  transition: scale 0.6s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .exp-item__logo-link:hover .exp-item__logo-card {
+    scale: 1.03;
+  }
 }
 
 .exp-item__logo {
-  flex: none;
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+}
+
+/* the place stays quiet so the qualification beside it leads, at every size */
+#education .exp-item__company {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
 }
 
 .exp-item__role {
@@ -1270,6 +1313,13 @@ button {
    the same line as the company/school name next to it */
 .exp-item__body {
   padding-top: calc(12px * 1.7 + 6px);
+}
+
+/* sit level with the middle of the logo card */
+#education .exp-item__body {
+  display: flex;
+  align-items: center;
+  min-height: calc(12px * 1.7 + 6px + var(--logo-card));
 }
 
 .exp-item__body > :last-child {
@@ -2272,7 +2322,7 @@ a.footer__link:not([href^="#"]) {
   }
 
   .exp-item {
-    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-columns: var(--exp-col, 200px) minmax(0, 1fr);
     gap: 32px;
   }
 }
@@ -2406,6 +2456,10 @@ a.footer__link:not([href^="#"]) {
 
   .exp-item__body {
     padding-top: 0;
+  }
+
+  #education .exp-item__body {
+    min-height: 0;
   }
 
   /* footer → two columns, contact spans the full row */

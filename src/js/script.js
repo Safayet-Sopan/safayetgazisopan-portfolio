@@ -76,6 +76,7 @@ document.addEventListener('site:ready', () => {
    ============================================================ */
 (function initNav() {
   const nav = document.getElementById('nav');
+  if (!nav) return;   // the Beyond page has no nav
   const links = document.querySelectorAll('.nav__link, .mobile-menu__link');
 
   const footer = document.getElementById('contact');
@@ -380,7 +381,9 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   document.addEventListener('mouseover', (e) => {
     cursor.classList.toggle('hover', !!e.target.closest(HOVER_TARGETS));
     // (the "Send a message" button turns cream on hover, so keep it red there)
-    cursor.classList.toggle('on-dark', !!e.target.closest('.footer, .mobile-menu') && !e.target.closest('.footer__cta'));
+    cursor.classList.toggle('on-dark', !!e.target.closest('.footer, .mobile-menu, .page-beyond') && !e.target.closest('.footer__cta'));
+    // over the Beyond section the cursor becomes the Explore button
+    cursor.classList.toggle('explore', !!e.target.closest('#beyond'));
   });
 })();
 
@@ -415,18 +418,18 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
-   7c. SCHOOL LOGOS — lean gently towards the pointer. The position
-       glides towards its target each frame, so it never snaps.
+   7c. TILT — school logos and the Beyond cards lean gently towards
+       the pointer, gliding a little each frame so they never snap.
    ============================================================ */
-(function initLogoCards() {
+(function initTilt() {
   if (prefersReducedMotion) return;
 
   const MAX_TILT = 6;      // degrees at the logo's edge
   const MAX_SHIFT = 3;     // px at the logo's edge
   const GLIDE = 0.07;      // share of the remaining distance covered per frame
 
-  document.querySelectorAll('.exp-item__logo-link').forEach((link) => {
-    const card = link.querySelector('.exp-item__logo-card');
+  document.querySelectorAll('[data-tilt]').forEach((link) => {
+    const card = link.querySelector('[data-tilt-card]');
     if (!card) return;
 
     let targetX = 0, targetY = 0;   // -1 to 1 across the logo
@@ -466,8 +469,66 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
-   8. BACKGROUND FX — dot grid that only exists around the mouse
-      (or your finger on touch screens) and slowly breathes there
+   7d. BEYOND ENTRANCE — with a mouse, the whole section is the
+       Explore button; on touch, the photo is. Clicking opens the
+       button out until it fills the screen, and the Beyond page's
+       own loader carries on from it in the same colour.
+   ============================================================ */
+(function initBeyondEntrance() {
+  const section = document.getElementById('beyond');
+  const link = section && section.querySelector('.beyond__portal');
+  if (!link) return;
+
+  const CURTAIN_MS = 900;
+  let curtain = null;
+
+  section.addEventListener('click', (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // new tab etc.
+    if (!finePointer.matches && !e.target.closest('.beyond__portal')) return;
+    if (!window.getSelection().isCollapsed) return;                 // selecting text
+    e.preventDefault();
+    if (curtain) return;
+
+    if (prefersReducedMotion) {
+      window.location.href = link.href;
+      return;
+    }
+
+    curtain = document.createElement('div');
+    curtain.className = 'curtain';
+    curtain.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(curtain);
+
+    // open from the pointer, or from the photo when Enter pressed the link
+    let x = e.clientX;
+    let y = e.clientY;
+    if (e.detail === 0) {
+      const box = link.getBoundingClientRect();
+      x = box.left + box.width / 2;
+      y = box.top + box.height / 2;
+    }
+    const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    curtain.animate(
+      [{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${reach}px at ${x}px ${y}px)` }],
+      { duration: CURTAIN_MS, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', fill: 'forwards' }
+    ).finished.then(() => {
+      window.location.href = link.href;
+    });
+  });
+
+  // coming back with the browser's back button restores this page as it was
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted || !curtain) return;
+    curtain.remove();
+    curtain = null;
+  });
+})();
+
+/* ============================================================
+   8. BACKGROUND — a full-screen grid of dots that swell and fade
+      in slow waves, on every page. MAX_ALPHA sets how visible it
+      is: barely, on purpose.
    ============================================================ */
 (function initBackgroundFx() {
   const canvas = document.getElementById('bgFx');
@@ -475,23 +536,22 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 
   const ctx = canvas.getContext('2d');
 
-  const SPACING = 32;      // distance between dots
-  const DOT_MAX = 3.0;     // max dot size near cursor
-  const WARP = 14;         // how far dots drift toward cursor
-  const ACCENT = [139, 48, 34];   // deep accent (center)
-  const WARM = [196, 122, 74];    // warm terracotta (edges)
-  const MOUSE_IDLE_MS = 4000;     // keeps breathing this long under a still pointer
-  const TOUCH_IDLE_MS = 1500;     // lingers a little after a tap / swipe
+  const onDark = document.body.classList.contains('page-beyond');
+  const DOT = onDark ? '237, 232, 220' : '139, 48, 34';   // cream on dark, accent on cream
+  const MAX_ALPHA = onDark ? 0.06 : 0.09;
 
-  let RADIUS = 210;        // influence radius (smaller on phones)
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const SPACING = 32;       // distance between dots
+  const MIN_SIZE = 0.6;     // dot radius when exhaled
+  const MAX_SIZE = 1.8;     // dot radius when inhaled
+  const FRAME_MS = 33;      // the waves are slow, so 30 frames a second is plenty
+
   let w = 0, h = 0;
+  let lastFrame = 0;
 
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = window.innerWidth;
     h = window.innerHeight;
-    RADIUS = Math.max(130, Math.min(210, w * 0.4));
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -499,135 +559,35 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   resize();
   window.addEventListener('resize', resize);
 
-  // smoothed pointer position; start off-screen so nothing shows until move
-  let pointerX = -9999, pointerY = -9999;
-  let curX = -9999, curY = -9999;
-
-  // visibility: appears while moving, fades out when idle
-  let intensity = 0;
-  let target = 0;
-  let lastMove = 0;
-  let idleMs = MOUSE_IDLE_MS;
-  let cleared = true;
-
-  function moveTo(x, y, snap) {
-    pointerX = x;
-    pointerY = y;
-    if (snap || curX < -1000) {
-      curX = x;
-      curY = y;
-    }
-    target = 1;
-    lastMove = performance.now();
-  }
-
-  document.addEventListener('mousemove', (e) => {
-    if (!finePointer.matches) return;
-    idleMs = MOUSE_IDLE_MS;
-    moveTo(e.clientX, e.clientY, false);
-  });
-  document.addEventListener('mouseout', (e) => {
-    if (!e.relatedTarget) target = 0;
-  });
-
-  // touch: a tap snaps the glow under the finger, a swipe drags it along
-  const onTouch = (snap) => (e) => {
-    const t = e.touches[0];
-    if (!t) return;
-    idleMs = TOUCH_IDLE_MS;
-    moveTo(t.clientX, t.clientY, snap);
-  };
-  window.addEventListener('touchstart', onTouch(true), { passive: true });
-  window.addEventListener('touchmove', onTouch(false), { passive: true });
-
-  // slow waves drifting through the spotlight: 0 = exhaled, 1 = inhaled
+  // slow waves drifting across the grid: 0 = exhaled, 1 = inhaled
   function breathAt(x, y, now) {
     const wave = (
-      Math.sin(x * 0.014 + now * 0.0013) +
-      Math.sin(y * 0.018 - now * 0.001) +
-      Math.sin((x + y) * 0.009 + now * 0.0007)
+      Math.sin(x * 0.014 + now * 0.0008) +
+      Math.sin(y * 0.018 - now * 0.0006) +
+      Math.sin((x + y) * 0.009 + now * 0.0004)
     ) / 3;
     // three waves rarely peak together, so stretch them to use the full range
     return Math.max(0, Math.min(1, (wave * 1.7 + 1) / 2));
   }
 
-  function frame() {
+  function frame(now) {
     requestAnimationFrame(frame);
-    const now = performance.now();
-
-    curX += (pointerX - curX) * 0.12;
-    curY += (pointerY - curY) * 0.12;
-
-    if (target === 1 && now - lastMove > idleMs) target = 0;
-    intensity += (target - intensity) * 0.08;
-
-    // nothing to draw while fully faded out
-    if (intensity < 0.01) {
-      if (!cleared) {
-        ctx.clearRect(0, 0, w, h);
-        cleared = true;
-      }
-      return;
-    }
+    if (now - lastFrame < FRAME_MS) return;
+    lastFrame = now;
 
     ctx.clearRect(0, 0, w, h);
-    cleared = false;
 
-    // soft radial halo following the pointer
-    const halo = ctx.createRadialGradient(curX, curY, 0, curX, curY, RADIUS);
-    halo.addColorStop(0, `rgba(${ACCENT.join(',')}, ${0.07 * intensity})`);
-    halo.addColorStop(0.5, `rgba(${WARM.join(',')}, ${0.035 * intensity})`);
-    halo.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = halo;
-    ctx.fillRect(curX - RADIUS, curY - RADIUS, RADIUS * 2, RADIUS * 2);
-
-    // only iterate the grid cells inside the influence box
-    const minCol = Math.floor((curX - RADIUS) / SPACING);
-    const maxCol = Math.ceil((curX + RADIUS) / SPACING);
-    const minRow = Math.floor((curY - RADIUS) / SPACING);
-    const maxRow = Math.ceil((curY + RADIUS) / SPACING);
-
-    ctx.shadowColor = `rgba(${ACCENT.join(',')}, 0.5)`;
-
-    for (let col = minCol; col <= maxCol; col++) {
-      for (let row = minRow; row <= maxRow; row++) {
-        const baseX = col * SPACING;
-        const baseY = row * SPACING;
-        if (baseX < -SPACING || baseX > w + SPACING || baseY < -SPACING || baseY > h + SPACING) continue;
-
-        const dx = baseX - curX;
-        const dy = baseY - curY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > RADIUS) continue;
-
-        const t = 1 - dist / RADIUS;       // 1 at center -> 0 at edge
-        const ease = t * t;                // softer falloff
-        const breath = breathAt(baseX, baseY, now);
-        const size = DOT_MAX * ease * (0.4 + 0.85 * breath);
-        if (size < 0.12) continue;
-
-        // gentle warp: dots drift toward the pointer as it nears
-        const pull = ease * WARP;
-        const inv = dist > 0.001 ? 1 / dist : 0;
-        const x = baseX - dx * inv * pull;
-        const y = baseY - dy * inv * pull;
-
-        // color shifts from warm (edge) to deep accent (center)
-        const r = Math.round(WARM[0] + (ACCENT[0] - WARM[0]) * ease);
-        const g = Math.round(WARM[1] + (ACCENT[1] - WARM[1]) * ease);
-        const b = Math.round(WARM[2] + (ACCENT[2] - WARM[2]) * ease);
-
+    for (let x = SPACING / 2; x < w; x += SPACING) {
+      for (let y = SPACING / 2; y < h; y += SPACING) {
+        const breath = breathAt(x, y, now);
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.6 * ease * (0.5 + 0.7 * breath) * intensity})`;
-        ctx.shadowBlur = 8 * ease;
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${DOT}, ${MAX_ALPHA * breath})`;
+        ctx.arc(x, y, MIN_SIZE + (MAX_SIZE - MIN_SIZE) * breath, 0, Math.PI * 2);
         ctx.fill();
       }
     }
-
-    ctx.shadowBlur = 0;
   }
-  frame();
+  requestAnimationFrame(frame);
 })();
 
 /* ============================================================

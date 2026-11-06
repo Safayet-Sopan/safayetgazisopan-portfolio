@@ -33,6 +33,15 @@
     <div class="cursor__ring-wrapper">
       <div class="cursor__ring"></div>
     </div>
+    <span class="cursor__label">
+      <span class="seal">
+          <svg class="seal__ring" viewBox="0 0 120 120">
+            <path id="sealPathCursor" fill="none" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/>
+            <text><textPath href="#sealPathCursor" textLength="290">STEP INSIDE · STEP INSIDE · STEP INSIDE ·</textPath></text>
+          </svg>
+          <span class="seal__word">Explore</span>
+        </span>
+    </span>
   </div>
 
   <!-- NAV -->
@@ -403,9 +412,20 @@
           <p>Singing lets me express the song. Playing guitar lets me help build it.</p>
         </div>
         <div class="beyond__item beyond__item--photo animate-target" data-delay="2">
-          <div class="beyond__photo">
-            <img src="./img/beyond-photo.webp" alt="Safayet Gazi Sopan performing" width="1000" height="1500" loading="lazy" decoding="async">
-          </div>
+          <a href="./beyond.html" class="beyond__portal" aria-label="See photos from my shows">
+            <div class="beyond__photo">
+              <img src="./img/beyond-photo.webp" alt="Safayet Gazi Sopan performing" width="1000" height="1500" loading="lazy" decoding="async">
+            </div>
+            <span class="beyond__explore">
+              <span class="seal">
+                <svg class="seal__ring" viewBox="0 0 120 120">
+                  <path id="sealPathPhoto" fill="none" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/>
+                  <text><textPath href="#sealPathPhoto" textLength="290">STEP INSIDE · STEP INSIDE · STEP INSIDE ·</textPath></text>
+                </svg>
+                <span class="seal__word">Explore</span>
+              </span>
+            </span>
+          </a>
         </div>
       </div>
     </div>
@@ -486,8 +506,8 @@
           <div class="exp-item__meta">
             <span class="exp-item__date">2024 — Present</span>
             <div class="exp-item__school">
-              <a class="exp-item__logo-link" href="https://www.aiub.edu/" target="_blank" rel="noopener" aria-label="American International University - Bangladesh website">
-                <span class="exp-item__logo-card">
+              <a class="exp-item__logo-link" data-tilt href="https://www.aiub.edu/" target="_blank" rel="noopener" aria-label="American International University - Bangladesh website">
+                <span class="exp-item__logo-card" data-tilt-card>
                   <img class="exp-item__logo" src="./assets/logos/aiub.svg" alt="" width="100" height="100" loading="lazy" decoding="async" />
                 </span>
               </a>
@@ -503,8 +523,8 @@
           <div class="exp-item__meta">
             <span class="exp-item__date">2023</span>
             <div class="exp-item__school">
-              <a class="exp-item__logo-link" href="https://ndcm.edu.bd/" target="_blank" rel="noopener" aria-label="Notre Dame College, Mymensingh website">
-                <span class="exp-item__logo-card">
+              <a class="exp-item__logo-link" data-tilt href="https://ndcm.edu.bd/" target="_blank" rel="noopener" aria-label="Notre Dame College, Mymensingh website">
+                <span class="exp-item__logo-card" data-tilt-card>
                   <img class="exp-item__logo" src="./assets/logos/notre-dame-mymensingh.png" alt="" width="192" height="187" loading="lazy" decoding="async" />
                 </span>
               </a>
@@ -520,8 +540,8 @@
           <div class="exp-item__meta">
             <span class="exp-item__date">2021</span>
             <div class="exp-item__school">
-              <a class="exp-item__logo-link" href="https://dhanbaricollegiateschool.edu.bd/" target="_blank" rel="noopener" aria-label="Dhanbari Collegiate Model School website">
-                <span class="exp-item__logo-card">
+              <a class="exp-item__logo-link" data-tilt href="https://dhanbaricollegiateschool.edu.bd/" target="_blank" rel="noopener" aria-label="Dhanbari Collegiate Model School website">
+                <span class="exp-item__logo-card" data-tilt-card>
                   <img class="exp-item__logo" src="./assets/logos/dhanbari-collegiate.png" alt="" width="150" height="150" loading="lazy" decoding="async" />
                 </span>
               </a>

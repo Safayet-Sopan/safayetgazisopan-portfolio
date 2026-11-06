@@ -10,6 +10,9 @@
   --accent: #8B3022;
   --accent-dim: rgba(139, 48, 34, 0.18);
   --rule: rgba(28, 26, 22, 0.12);
+  --loader-bg: #3B1013;
+  --loader-ink: var(--bg);
+  --loader-rule: rgba(237, 232, 220, 0.5);
 
   --font-display: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
@@ -675,6 +678,93 @@ button {
 
 .hero__last.in {
   animation: slideFromRight 1s var(--ease-out) 0.35s forwards;
+}
+
+/* ----- "Call me [logo]": the first name parts, the letters of "Sopan" roll
+         up and fade one by one, then the logo's letters arrive the same
+         way. On the way back the logo rolls out and "Sopan" rolls in. ----- */
+.hero__word {
+  display: inline-block;
+  transition: transform 0.7s var(--ease-out) 0.5s, opacity 0.6s ease 0.5s;
+}
+
+.hero-wrapper.is-calling .hero__word {
+  opacity: 0;
+  transition: transform 0.7s var(--ease-out), opacity 0.45s ease;
+}
+
+.hero-wrapper.is-calling .hero__word--left  { transform: translateX(-0.7em); }
+.hero-wrapper.is-calling .hero__word--right { transform: translateX(0.7em); }
+
+.hero__char {
+  display: inline-block;
+  --roll: 0.6em;
+}
+
+.hero-wrapper.is-calling .hero__char {
+  animation: rollAway 0.55s var(--ease-in-out) calc(var(--n) * 50ms) both;
+}
+
+.hero-wrapper.is-leaving .hero__char {
+  animation: rollIn 0.7s var(--ease-out) calc(0.45s + var(--n) * 50ms) both;
+}
+
+.hero__call {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+.hero__call-text {
+  font-size: 0.5em;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-0.4em);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.hero-wrapper.is-calling .hero__call-text {
+  opacity: 1;
+  transform: none;
+  transition: transform 0.7s var(--ease-out) 0.75s, opacity 0.6s ease 0.75s;
+}
+
+.hero__call-logo {
+  width: 3.3em;
+  height: auto;
+  overflow: visible;
+}
+
+.hero__call-logo path {
+  fill: var(--accent);
+  opacity: 0;
+  --roll: 12px;   /* the logo's own units, about the same distance on screen */
+}
+
+.hero-wrapper.is-calling .hero__call-logo path {
+  animation: rollIn 0.7s var(--ease-out) calc(0.45s + var(--n) * 50ms) both;
+}
+
+.hero-wrapper.is-leaving .hero__call-logo path {
+  animation: rollAway 0.55s var(--ease-in-out) calc(var(--n) * 50ms) both;
+}
+
+@keyframes rollAway {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(calc(var(--roll) * -1)); }
+}
+
+@keyframes rollIn {
+  from { opacity: 0; transform: translateY(var(--roll)); }
+  to   { opacity: 1; transform: none; }
 }
 
 @keyframes slideFromLeft {
@@ -2035,41 +2125,75 @@ a.footer__link:not([href^="#"]) {
 .loader {
   position: fixed;
   inset: 0;
-  background: var(--bg);
+  background: var(--loader-bg);
+  color: var(--loader-ink);
   z-index: 100001;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 64px;
-  transition: transform 0.8s var(--ease-in-out);
+  display: grid;
+  place-items: center;
+  padding: 0 24px;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
   /* if JS never runs, still get out of the way */
-  animation: loaderFailsafe 0.4s ease 3s forwards;
+  animation: loaderFailsafe 0.4s ease 5s forwards;
 }
 
 @keyframes loaderFailsafe {
   to { opacity: 0; visibility: hidden; }
 }
 
-.loader.is-hidden {
-  transform: translateY(-100%);
+/* the curtain lifts: its bottom edge wipes up the screen */
+.loader.is-lifting {
+  clip-path: inset(0 0 100% 0);
+  pointer-events: none;
 }
 
 .loader__inner {
-  width: 100%;
-  padding: 0 var(--pad-x);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
-.loader__track {
-  width: 100%;
-  height: 1px;
-  background: rgba(0, 0, 0, .08);
+.loader__logo {
+  display: block;
+  width: clamp(200px, 24vw, 300px);
+  height: auto;
   overflow: hidden;
 }
 
-.loader__bar {
-  width: 0%;
-  height: 100%;
-  background: var(--accent);
+/* each letter rises into the logo's box, from the middle letter outwards.
+   Lengths here are in the SVG's own units: 30 clears its whole height. */
+.loader__logo path {
+  fill: currentColor;
+  transform: translateY(30px);
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i) * 45ms);
+}
+
+.loader.is-in .loader__logo path {
+  transform: none;
+}
+
+/* ...and leaves through the top, from the outer letters inwards */
+.loader.is-out .loader__logo path {
+  transform: translateY(-30px);
+  transition: transform 0.45s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  transition-delay: calc((2 - var(--i)) * 25ms);
+}
+
+/* progress line: grows left to right, leaves to the right */
+.loader__rule {
+  display: block;
+  width: 96px;
+  height: 1px;
+  background: var(--loader-rule);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.loader.is-lifting .loader__rule {
+  transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19);
 }
 
 /* ============================================================
@@ -2442,9 +2566,6 @@ a.footer__link:not([href^="#"]) {
     border-radius: 8px;
   }
 
-  .loader {
-    padding-bottom: 40px;
-  }
 }
 
 /* ----- Phone hero intro: the portrait shows first, then fades away

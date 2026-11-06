@@ -415,8 +415,8 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
-   8. BACKGROUND FX — kinetic dot grid that follows the mouse,
-      or your finger when tapping / swiping on touch screens
+   8. BACKGROUND FX — dot grid that only exists around the mouse
+      (or your finger on touch screens) and slowly breathes there
    ============================================================ */
 (function initBackgroundFx() {
   const canvas = document.getElementById('bgFx');
@@ -429,8 +429,8 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   const WARP = 14;         // how far dots drift toward cursor
   const ACCENT = [139, 48, 34];   // deep accent (center)
   const WARM = [196, 122, 74];    // warm terracotta (edges)
-  const MOUSE_IDLE_MS = 140;      // stillness before it starts to fade out
-  const TOUCH_IDLE_MS = 450;      // lingers a little after a tap / swipe
+  const MOUSE_IDLE_MS = 4000;     // keeps breathing this long under a still pointer
+  const TOUCH_IDLE_MS = 1500;     // lingers a little after a tap / swipe
 
   let RADIUS = 210;        // influence radius (smaller on phones)
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -489,13 +489,25 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   window.addEventListener('touchstart', onTouch(true), { passive: true });
   window.addEventListener('touchmove', onTouch(false), { passive: true });
 
+  // slow waves drifting through the spotlight: 0 = exhaled, 1 = inhaled
+  function breathAt(x, y, now) {
+    const wave = (
+      Math.sin(x * 0.014 + now * 0.0013) +
+      Math.sin(y * 0.018 - now * 0.001) +
+      Math.sin((x + y) * 0.009 + now * 0.0007)
+    ) / 3;
+    // three waves rarely peak together, so stretch them to use the full range
+    return Math.max(0, Math.min(1, (wave * 1.7 + 1) / 2));
+  }
+
   function frame() {
     requestAnimationFrame(frame);
+    const now = performance.now();
 
     curX += (pointerX - curX) * 0.12;
     curY += (pointerY - curY) * 0.12;
 
-    if (target === 1 && performance.now() - lastMove > idleMs) target = 0;
+    if (target === 1 && now - lastMove > idleMs) target = 0;
     intensity += (target - intensity) * 0.08;
 
     // nothing to draw while fully faded out
@@ -539,7 +551,8 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 
         const t = 1 - dist / RADIUS;       // 1 at center -> 0 at edge
         const ease = t * t;                // softer falloff
-        const size = DOT_MAX * ease;
+        const breath = breathAt(baseX, baseY, now);
+        const size = DOT_MAX * ease * (0.4 + 0.85 * breath);
         if (size < 0.12) continue;
 
         // gentle warp: dots drift toward the pointer as it nears
@@ -554,7 +567,7 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
         const b = Math.round(WARM[2] + (ACCENT[2] - WARM[2]) * ease);
 
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.6 * ease * intensity})`;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.6 * ease * (0.5 + 0.7 * breath) * intensity})`;
         ctx.shadowBlur = 8 * ease;
         ctx.arc(x, y, size, 0, Math.PI * 2);
         ctx.fill();
@@ -730,40 +743,69 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
-   11. SOPAN SCRAMBLE HOVER (tap on touch screens)
+   11. "CALL ME SOPAN" — "Safayet" and "Gazi" part, the letters of
+       "Sopan" roll up and fade, and the logo's letters arrive the
+       same way above it. Then the logo rolls out and the name returns.
+       Plays once after the name arrives, then on hover or tap.
    ============================================================ */
-(function initHeroScramble() {
-  const letters = "!@#^*(){}[];±?abcdefghijklmnopqrstuvwxyz";
+(function initCallMe() {
+  const wrapper = document.getElementById('heroWrapper');
+  const first = document.getElementById('heroFirst');
+  const last = document.getElementById('heroLast');
+  const text = document.getElementById('heroLastText');
+  if (!wrapper || !first || !last || !text || prefersReducedMotion) return;
 
-  const target = document.querySelector(".hero-scramble");
-  if (!target) return;
+  const AUTO_DELAY_MS = 800;   // pause after the name arrives
+  const SHOWN_MS = 2800;       // from starting until the logo rolls out
+  const LEAVE_MS = 1400;       // the return trip
 
-  const originalText = target.textContent;
+  // split "Sopan" into letters, keeping the whole word for screen readers
+  const word = text.textContent;
+  const sr = document.createElement('span');
+  sr.className = 'visually-hidden';
+  sr.textContent = word;
+
+  const chars = document.createElement('span');
+  chars.setAttribute('aria-hidden', 'true');
+  [...word].forEach((ch, i) => {
+    const c = document.createElement('span');
+    c.className = 'hero__char';
+    c.style.setProperty('--n', i);
+    c.textContent = ch;
+    chars.appendChild(c);
+  });
+
+  text.textContent = '';
+  text.append(sr, chars);
+
+  let armed = false;
   let running = false;
 
-  target.addEventListener("pointerenter", () => {
-    if (running) return;
+  function play() {
+    if (!armed || running) return;
     running = true;
+    wrapper.classList.add('is-calling');
 
-    let iteration = 0;
-
-    const interval = setInterval(() => {
-      target.textContent = originalText
-        .split("")
-        .map((letter, index) => {
-          if (index < iteration) return originalText[index];
-          return letters[Math.floor(Math.random() * letters.length)];
-        })
-        .join("");
-
-      if (iteration >= originalText.length) {
-        clearInterval(interval);
-        target.textContent = originalText;
+    setTimeout(() => {
+      wrapper.classList.replace('is-calling', 'is-leaving');
+      setTimeout(() => {
+        wrapper.classList.remove('is-leaving');
         running = false;
-      }
+      }, LEAVE_MS);
+    }, SHOWN_MS);
+  }
 
-      iteration += 0.35;
-    }, 25);
+  last.addEventListener('animationend', (e) => {
+    if (e.animationName !== 'slideFromRight') return;
+    armed = true;
+    setTimeout(play, AUTO_DELAY_MS);
+  });
+
+  [first, last].forEach((el) => {
+    el.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse') play();
+    });
+    el.addEventListener('click', play);   // a tap on touch screens
   });
 })();
 
@@ -896,22 +938,27 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
 })();
 
 /* ============================================================
-   15. LOADER — tracks the real page load, but never stays up
-       longer than ~2s so the site is usable within 3 seconds
+   15. LOADER — a curtain: the logo's letters rise in while a thin
+       line tracks the real page load, then the letters leave and
+       the curtain lifts. Never waits long on a slow connection.
    ============================================================ */
 (function initLoader() {
   const loader = document.getElementById('loader');
-  const loaderBar = document.getElementById('loaderBar');
+  const loaderRule = document.getElementById('loaderRule');
 
   const ready = () => document.dispatchEvent(new Event('site:ready'));
 
-  if (!loader || !loaderBar) {
+  if (!loader || !loaderRule) {
     ready();
     return;
   }
 
-  const MIN_MS = 600;      // don't flash
-  const MAX_MS = 1900;     // hard cap, then lift regardless
+  const MIN_MS = prefersReducedMotion ? 300 : 1150;   // let the letters finish rising
+  const MAX_MS = 2200;     // hard cap, then lift regardless
+  const OUT_MS = prefersReducedMotion ? 0 : 500;      // letters leaving
+  const LIFT_MS = prefersReducedMotion ? 300 : 800;   // curtain lifting
+  const REVEAL_AT_MS = prefersReducedMotion ? 0 : 300;   // hero starts mid-lift
+
   const start = performance.now();
   let loaded = document.readyState === 'complete';
   let shown = 0;
@@ -923,10 +970,10 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
     if (finished) return;
     const elapsed = now - start;
     const done = (loaded && elapsed >= MIN_MS) || elapsed >= MAX_MS;
-    // creep towards 90% while loading, then run to 100%
-    const target = done ? 100 : Math.min(90, (elapsed / MAX_MS) * 100);
-    shown += (target - shown) * (done ? 0.25 : 0.08);
-    loaderBar.style.width = `${shown}%`;
+    // creep towards 85% while loading, then run to 100%
+    const target = done ? 100 : Math.min(85, (elapsed / MAX_MS) * 100);
+    shown += (target - shown) * (done ? 0.2 : 0.08);
+    loaderRule.style.transform = `scaleX(${shown / 100})`;
 
     if (done && shown > 99.4) {
       finish();
@@ -938,12 +985,21 @@ const CONTACT_EMAIL = 'safayetgazisopan@gmail.com';
   function finish() {
     if (finished) return;
     finished = true;
-    loaderBar.style.width = '100%';
-    loader.classList.add('is-hidden');
-    ready();
-    setTimeout(() => loader.remove(), 900);
+    loaderRule.style.transform = 'scaleX(1)';
+    loader.classList.add('is-out');
+
+    setTimeout(() => {
+      loaderRule.style.transform = '';
+      loader.classList.add('is-lifting');
+      setTimeout(ready, REVEAL_AT_MS);
+      setTimeout(() => loader.remove(), LIFT_MS + 100);
+    }, OUT_MS);
   }
 
+  // two frames so the letters' start position paints before they rise
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => loader.classList.add('is-in'));
+  });
   requestAnimationFrame(tick);
   // rAF pauses in background tabs — make sure we still finish on time
   setTimeout(finish, MAX_MS + 600);

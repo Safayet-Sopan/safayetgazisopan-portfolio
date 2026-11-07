@@ -6,14 +6,16 @@
        title: 'Show name', place: 'Venue, city', year: '2025',
        text: 'A line or two about the show.' }
 
-   Add art: 'rose', 'van' or 'owl' to give a card a cream back with that
-   drawing on it (the drawings live in beyond-art.js).
+   Add art: 'rose', 'van', 'owl', 'blazer', 'mic' or 'smear' to give a card a cream
+   back with that drawing on it (the drawings live in beyond-art.js).
    Add focus: '25% 50%' to choose which part of the photo the tile shows.
 
-   shape: 'big', 'wide', 'tall', or leave it out for a square.
+   shape: 'big', 'slab', 'wide', 'tall', or leave it out for a square.
+   upright: a different shape for upright screens, where the grid is
+   three across instead of six.
    A tile with no src stays an empty dark block.
 
-   The collage always fits one screen, and these nine tiles fill it
+   The collage always fits one screen, and these six tiles fill it
    exactly. Swap a tile's contents rather than reordering the shapes.
    ============================================================ */
 const SHOWS = [
@@ -28,15 +30,14 @@ const SHOWS = [
     art: 'rose',
   },
   {
-    shape: 'wide',
-    src: './img/beyond-saptashur.webp',
-    alt: 'Safayet Gazi Sopan playing guitar on stage in a double-exposure photo with neon light',
-    title: 'সপ্তসুর',
-    place: 'Khulna University',
-    year: '2026',
-    text: 'A broken car, long journey & unfinished songs.',
-    art: 'van',
-    focus: '50% 42%',
+    shape: 'slab',
+    src: './img/beyond-echoes.webp',
+    alt: 'Safayet Gazi Sopan in a blue shirt singing into a microphone in front of a crowd and stage lights',
+    title: 'Echoes of Expression',
+    place: 'AIUB Amphitheatre',
+    year: '2025',
+    text: 'তা তা তা ......',
+    art: 'smear',
   },
   {
     shape: 'tall',
@@ -49,12 +50,40 @@ const SHOWS = [
     art: 'owl',
     focus: '42% 50%',
   },
-  {},
-  {},
-  { shape: 'wide' },
-  { shape: 'tall' },
-  {},
-  {},
+  {
+    shape: 'tall',
+    src: './img/beyond-orientation.webp',
+    alt: 'Safayet Gazi Sopan in a purple tie-dye shirt singing into a microphone and playing guitar',
+    title: 'Orientation Photography Club',
+    place: 'AIUB Multipurpose Hall',
+    year: '2025',
+    text: 'First show in university life it was.',
+    art: 'mic',
+    focus: '42% 50%',
+  },
+  {
+    shape: 'wide',
+    src: './img/beyond-qs-forum.webp',
+    alt: 'Safayet Gazi Sopan in a grey blazer playing an acoustic guitar on stage in front of a glowing orange screen',
+    title: 'QS Bangladesh Forum 2026',
+    place: 'Sheraton Dhaka',
+    year: '2026',
+    text: 'Etiquette at its peak',
+    art: 'blazer',
+    focus: '50% 44%',
+  },
+  {
+    shape: 'wide',
+    upright: 'tall',
+    src: './img/beyond-saptashur.webp',
+    alt: 'Safayet Gazi Sopan playing guitar on stage in a double-exposure photo with neon light',
+    title: 'সপ্তসুর',
+    place: 'Khulna University',
+    year: '2026',
+    text: 'A broken car, long journey & unfinished songs.',
+    art: 'van',
+    focus: '50% 42%',
+  },
 ];
 
 (function buildCollage() {
@@ -131,7 +160,17 @@ const SHOWS = [
 
   SHOWS.forEach((show, i) => {
     const tile = show.src ? makeCard(show) : makeEmptyTile();
-    if (show.shape) tile.classList.add(`bento__tile--${show.shape}`);
+    if (show.upright) {
+      const upright = window.matchMedia('(orientation: portrait)');
+      const setShape = () => {
+        tile.classList.toggle(`bento__tile--${show.shape}`, !upright.matches);
+        tile.classList.toggle(`bento__tile--${show.upright}`, upright.matches);
+      };
+      setShape();
+      upright.addEventListener('change', setShape);
+    } else if (show.shape) {
+      tile.classList.add(`bento__tile--${show.shape}`);
+    }
     tile.style.setProperty('--n', i);
     bento.appendChild(tile);
   });

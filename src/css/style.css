@@ -1416,6 +1416,7 @@ button {
 }
 
 .bento__tile--big  { grid-column: span 2; grid-row: span 3; }
+.bento__tile--slab { grid-column: span 2; grid-row: span 2; }
 .bento__tile--wide { grid-column: span 2; }
 .bento__tile--tall { grid-row: span 2; }
 
@@ -1658,7 +1659,7 @@ button {
   }
 }
 
-/* upright screens: the same nine tiles, three across and six down */
+/* upright screens: the same tiles, three across and six down */
 @media (orientation: portrait) {
   .bento {
     grid-template-columns: repeat(3, minmax(0, 1fr));
